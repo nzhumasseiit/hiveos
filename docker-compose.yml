@@ -1,0 +1,58 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    environment:
+      INFLUX_URL: http://influxdb:8086
+      DB_PATH: /data/hiveos.db
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_data:/data
+    depends_on:
+      influxdb:
+        condition: service_healthy
+
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: change-me-influx
+      DOCKER_INFLUXDB_INIT_ORG: hiveos
+      DOCKER_INFLUXDB_INIT_BUCKET: beehive
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: dev-influx-token
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: change-me-grafana
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_ORG: hiveos
+      INFLUXDB_BUCKET: beehive
+      INFLUXDB_TOKEN: dev-influx-token
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      influxdb:
+        condition: service_healthy
+
+volumes:
+  backend_data:
+  influxdb_data:
+  grafana_data:

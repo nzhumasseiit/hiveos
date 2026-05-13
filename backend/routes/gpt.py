@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from openai import OpenAI
-import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from main import verify_token
+
+from config import get_settings
+from security import verify_token
 
 router = APIRouter()
 
@@ -28,15 +28,15 @@ Give practical, concise beekeeping advice based on these readings. Max 120 words
 
 @router.post("/chat")
 def chat(body: ChatRequest, username: str = Depends(verify_token)):
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
+    settings = get_settings()
+    if not settings.openai_api_key:
         raise HTTPException(status_code=500, detail="OpenAI key not configured on server")
 
-    client = OpenAI(api_key=api_key)
+    client = OpenAI(api_key=settings.openai_api_key)
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=settings.openai_model,
             messages=[
                 {"role": "system", "content": build_system_prompt(body.sensor_context)},
                 {"role": "user",   "content": body.question}
@@ -47,6 +47,6 @@ def chat(body: ChatRequest, username: str = Depends(verify_token)):
         return {"reply": response.choices[0].message.content}
     except Exception as e:
         # Avoid leaking internal errors/config in production.
-        if os.getenv("ENV", "development").lower() == "production":
+        if settings.is_production:
             raise HTTPException(status_code=500, detail="Upstream AI request failed")
         raise HTTPException(status_code=500, detail=str(e))
