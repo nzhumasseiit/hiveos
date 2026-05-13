@@ -1,0 +1,23 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+backend/venv/
+
+# databases
+*.db
+*.sqlite
+*.sqlite3
+
+# OS junk
+.DS_Store
+__MACOSX/
+
+# logs
+*.log
