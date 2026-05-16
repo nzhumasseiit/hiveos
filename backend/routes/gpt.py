@@ -12,7 +12,7 @@ class ChatRequest(BaseModel):
     sensor_context: dict  # latest sensor readings sent from frontend
 
 def build_system_prompt(ctx: dict) -> str:
-    return f"""You are HiveAI, an expert beekeeping assistant analyzing a smart beehive.
+    return f"""You are BEElive AI, an expert beekeeping assistant analyzing a smart beehive.
 
 Current sensor readings:
 - Temperature: {ctx.get('temp_c', 'N/A')} °C

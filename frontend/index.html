@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HiveOS — Beehive Monitor</title>
+<title>BEElive — Beehive Monitor</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap');
@@ -174,8 +174,8 @@ body::before { content:''; position:fixed; inset:0;
   <div class="login-wrap">
     <div class="login-logo">
       <div class="hex-icon">🐝</div>
-      <h1>HiveOS</h1>
-      <p>Beehive Monitoring System</p>
+      <h1>BEElive</h1>
+      <p>Smart Beehive Monitoring</p>
     </div>
     <div class="login-card">
       <div class="field"><label>Username</label><input type="text" id="login-user" placeholder="admin"></div>
@@ -189,7 +189,7 @@ body::before { content:''; position:fixed; inset:0;
 <!-- DASHBOARD -->
 <div id="dashboard">
   <div class="topbar">
-    <div class="topbar-logo"><div class="hex-sm"></div>HiveOS</div>
+    <div class="topbar-logo"><div class="hex-sm"></div>BEElive</div>
     <div class="topbar-nav">
       <button class="nav-btn active" onclick="showSection('graphs',this)">01 — Graphs</button>
       <button class="nav-btn" onclick="showSection('analytics',this)">02 — Analytics</button>
@@ -250,11 +250,11 @@ body::before { content:''; position:fixed; inset:0;
       <div class="ai-chat-card">
         <div class="ai-chat-header">
           <div class="ai-icon">🤖</div>
-          <div><h3>Hive Intelligence</h3><p>GPT-4o-mini · Real sensor context · Secure</p></div>
+          <div><h3>BEElive Intelligence</h3><p>GPT-4o-mini · Real sensor context · Secure</p></div>
         </div>
         <div class="ai-messages" id="ai-messages">
           <div class="msg msg-ai">
-            <div class="msg-label">HiveAI</div>
+            <div class="msg-label">BEElive AI</div>
             Hello beekeeper 🐝 I have access to your live sensor readings. Ask me anything about your hive.
           </div>
         </div>
@@ -521,7 +521,7 @@ function addMsg(role, text) {
   const label = document.createElement('div');
   label.className = 'msg-label';
   if (role === 'ai') {
-    label.textContent = 'HiveAI';
+    label.textContent = 'BEElive AI';
   } else {
     label.textContent = 'You';
     label.style.color = 'var(--text-muted)';
@@ -539,7 +539,7 @@ function addThinking() {
   const wrap = document.getElementById('ai-messages');
   const div = document.createElement('div');
   div.className = 'msg msg-ai';
-  div.innerHTML = `<div class="msg-label">HiveAI</div><div class="thinking"><span></span><span></span><span></span></div>`;
+  div.innerHTML = `<div class="msg-label">BEElive AI</div><div class="thinking"><span></span><span></span><span></span></div>`;
   wrap.appendChild(div);
   wrap.scrollTop = wrap.scrollHeight;
   return div;
@@ -566,7 +566,7 @@ async function askGPT() {
   thinking.textContent = '';
   const label = document.createElement('div');
   label.className = 'msg-label';
-  label.textContent = 'HiveAI';
+  label.textContent = 'BEElive AI';
   const body = document.createElement('div');
   body.textContent = data?.reply || 'No response from server.';
   thinking.appendChild(label);

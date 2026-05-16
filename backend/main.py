@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import get_settings
 
-app = FastAPI(title="HiveOS API", version="1.0.0")
+app = FastAPI(title="BEElive API", version="1.0.0")
 settings = get_settings()
 
 cors_origins = settings.allowed_origins
@@ -29,7 +29,7 @@ app.include_router(hives_router, prefix="/api")
 
 @app.get("/")
 def root():
-    return {"status": "HiveOS API running", "docs": "/docs"}
+    return {"status": "BEElive API running", "docs": "/docs"}
 
 
 @app.get("/health")
