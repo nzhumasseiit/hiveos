@@ -319,7 +319,6 @@ body::before { content:''; position:fixed; inset:0;
 
 <script>
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
-// Change this to your deployed backend URL e.g. https://hiveos.up.railway.app
 const isLocal =
   window.location.hostname === '' || // file://
   window.location.hostname === 'localhost' ||
@@ -327,7 +326,7 @@ const isLocal =
 
 const API = isLocal
   ? 'http://localhost:8000'
-  : 'https://YOUR-BACKEND-URL.up.railway.app'; // ← update when deployed
+  : 'https://beelive.onrender.com'; // ← update when deployed
 
 let token = localStorage.getItem('hiveos_token') || null;
 let latestSnapshot = {};
