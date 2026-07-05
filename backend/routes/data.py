@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 
 from config import get_settings
 from security import verify_ingest_key, verify_token
-from storage import hive_exists, init_db, touch_device
+from storage import ensure_hive, init_db, touch_device
 
 
 router = APIRouter()
@@ -73,8 +73,8 @@ def ingest_reading(body: SensorReading):
         raise HTTPException(status_code=400, detail="At least one reading or status is required")
 
     init_db()
-    if not hive_exists(body.hive_id):
-        raise HTTPException(status_code=404, detail="Hive not found")
+    # Auto-register unknown hives so edge devices don't need the JWT-protected /hives flow.
+    ensure_hive(body.hive_id, body.device_id)
 
     point = (
         Point("hive_sensors")

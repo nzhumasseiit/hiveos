@@ -153,6 +153,22 @@ def create_hive(
         conn.close()
 
 
+def ensure_hive(hive_id: str, node: str) -> None:
+    """Auto-register a hive on first ingest so edge devices can pick their own hive_id."""
+    conn = _connect()
+    try:
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO hives (id, owner_username, name, topic, node)
+            VALUES (?, 'admin', ?, ?, ?)
+            """,
+            (hive_id, hive_id, hive_id, node),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def delete_hive(hive_id: str) -> bool:
     conn = _connect()
     try:
