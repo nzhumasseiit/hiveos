@@ -114,8 +114,6 @@ radio.openWritingPipe((const uint8_t*)"hive1");
 
 # Приёмная сторона (Raspberry Pi) — зона шлюза
 
-Сокоманднику с ESP32 эта часть не нужна — только для справки.
-
 ## 5. Pi — приём и декодирование (Python)
 
 ```python
