@@ -12,11 +12,8 @@
   --honey:#F5A623; --honey-dark:#C4811A; --honey-light:#FDE8B8;
   --comb:#1A1208; --comb-mid:#2E2010; --comb-soft:#3D2E18;
   --wax:#F9F3E8; --green:#4CAF7D; --red:#E05252; --blue:#5B9BD5;
-  --text:#F9F3E8; --text-muted:#A89070;
+  --text:#F9F3E8; --text-muted:#BCA57F;
   --border:rgba(245,166,35,0.15); --card:rgba(46,32,16,0.6);
-
-  /* ── Change this to your backend URL when deployed ── */
-  --api: "";
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -34,7 +31,7 @@ body::before { content:''; position:fixed; inset:0;
 @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(245,166,35,0.4)} 50%{box-shadow:0 0 0 20px rgba(245,166,35,0)} }
 .login-logo h1 { font-family:'Syne',sans-serif; font-size:32px; font-weight:800; letter-spacing:-1px; color:var(--honey); }
 .login-logo p { font-size:11px; color:var(--text-muted); letter-spacing:3px; text-transform:uppercase; margin-top:6px; }
-.login-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:40px; backdrop-filter:blur(20px); }
+.login-card { background:var(--comb-mid); border:1px solid var(--border); border-radius:16px; padding:40px; }
 .field { margin-bottom:20px; }
 .field label { display:block; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text-muted); margin-bottom:8px; }
 .field input { width:100%; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:8px; padding:14px 16px; color:var(--text); font-family:'DM Mono',monospace; font-size:14px; outline:none; transition:border-color 0.2s,background 0.2s; }
@@ -47,7 +44,8 @@ body::before { content:''; position:fixed; inset:0;
 
 /* DASHBOARD */
 #dashboard { display:none; position:relative; z-index:1; }
-.topbar { display:flex; align-items:center; justify-content:space-between; padding:16px 32px; border-bottom:1px solid var(--border); background:rgba(26,18,8,0.8); backdrop-filter:blur(20px); position:sticky; top:0; z-index:100; }
+.topbar { border-bottom:1px solid var(--border); background:rgba(26,18,8,0.92); backdrop-filter:blur(12px); position:sticky; top:0; z-index:100; }
+.topbar-inner { max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 24px; flex-wrap:wrap; }
 .topbar-logo { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:var(--honey); display:flex; align-items:center; gap:10px; }
 .hex-sm { width:28px; height:28px; background:var(--honey); clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%); }
 .topbar-nav { display:flex; gap:4px; }
@@ -55,27 +53,26 @@ body::before { content:''; position:fixed; inset:0;
 .nav-btn:hover { color:var(--text); border-color:var(--border); }
 .nav-btn.active { background:rgba(245,166,35,0.12); border-color:rgba(245,166,35,0.3); color:var(--honey); }
 .topbar-right { display:flex; align-items:center; gap:16px; }
-.live-dot { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--green); }
-.live-dot::before { content:''; width:7px; height:7px; background:var(--green); border-radius:50%; animation:blink 2s ease-in-out infinite; }
+.live-dot { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted); }
+.live-dot::before { content:''; width:7px; height:7px; background:var(--text-muted); border-radius:50%; }
+.live-dot.on { color:var(--green); }
+.live-dot.on::before { background:var(--green); animation:blink 2s ease-in-out infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 .btn-logout { background:transparent; border:1px solid var(--border); border-radius:6px; padding:7px 14px; color:var(--text-muted); font-family:'DM Mono',monospace; font-size:11px; cursor:pointer; transition:all 0.2s; }
 .btn-logout:hover { border-color:var(--red); color:var(--red); }
 
 /* SECTIONS */
-.section { display:none; padding:32px; animation:fadeIn 0.3s ease; }
+.section { display:none; padding:32px 24px 48px; max-width:1200px; margin:0 auto; animation:fadeIn 0.25s ease; }
 .section.active { display:block; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation:none !important; transition:none !important; }
+}
 .section-header { margin-bottom:28px; }
 .section-header h2 { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; letter-spacing:-0.5px; }
 .section-header p { font-size:12px; color:var(--text-muted); margin-top:4px; }
 
 /* GRAPHS */
-.day-tabs { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
-.day-tab { padding:8px 16px; border-radius:6px; border:1px solid var(--border); background:transparent; font-family:'DM Mono',monospace; font-size:12px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:8px; color:var(--text-muted); }
-.day-tab:hover { border-color:rgba(245,166,35,0.3); color:var(--text); }
-.day-tab.active { background:rgba(245,166,35,0.1); border-color:rgba(245,166,35,0.4); color:var(--honey); }
-.status-dot { width:7px; height:7px; border-radius:50%; }
-.dot-good { background:var(--green); } .dot-bad { background:var(--red); } .dot-warn { background:var(--honey); }
 .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px; margin-bottom:28px; }
 .stat-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:20px; transition:border-color 0.2s; }
 .stat-card:hover { border-color:rgba(245,166,35,0.3); }
@@ -93,6 +90,7 @@ body::before { content:''; position:fixed; inset:0;
 .badge-good{background:rgba(76,175,125,0.2);color:var(--green);border:1px solid rgba(76,175,125,0.3)}
 .badge-bad{background:rgba(224,82,82,0.2);color:var(--red);border:1px solid rgba(224,82,82,0.3)}
 .badge-warn{background:rgba(245,166,35,0.2);color:var(--honey);border:1px solid rgba(245,166,35,0.3)}
+.badge-off{background:rgba(255,255,255,0.06);color:var(--text-muted);border:1px solid rgba(255,255,255,0.1)}
 .status-text { font-size:13px; color:var(--text-muted); }
 .status-text span { color:var(--text); }
 .node-select { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:6px; padding:8px 12px; color:var(--text); font-family:'DM Mono',monospace; font-size:12px; outline:none; margin-bottom:20px; cursor:pointer; }
@@ -130,9 +128,10 @@ body::before { content:''; position:fixed; inset:0;
 .btn-add { background:rgba(245,166,35,0.1); border:1px solid rgba(245,166,35,0.3); border-radius:8px; padding:10px 20px; color:var(--honey); font-family:'Syne',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; }
 .btn-add:hover{background:rgba(245,166,35,0.18)}
 .hives-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:20px; margin-bottom:32px; }
-.hive-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; transition:all 0.2s; position:relative; overflow:hidden; }
-.hive-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--honey); opacity:0; transition:opacity 0.2s; }
-.hive-card:hover{border-color:rgba(245,166,35,0.3);transform:translateY(-2px)} .hive-card:hover::before{opacity:1}
+.hive-card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; transition:border-color 0.2s; }
+.hive-card:hover{border-color:rgba(245,166,35,0.3)}
+.empty-state { grid-column:1/-1; border:1px dashed var(--border); border-radius:14px; padding:48px 24px; text-align:center; color:var(--text-muted); font-size:13px; line-height:1.7; }
+.empty-state strong { color:var(--text); font-weight:500; }
 .hive-card-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; }
 .hive-name { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; }
 .hive-loc { font-size:11px; color:var(--text-muted); margin-top:3px; }
@@ -189,16 +188,18 @@ body::before { content:''; position:fixed; inset:0;
 <!-- DASHBOARD -->
 <div id="dashboard">
   <div class="topbar">
-    <div class="topbar-logo"><div class="hex-sm"></div>BEElive</div>
-    <div class="topbar-nav">
-      <button class="nav-btn active" onclick="showSection('graphs',this)">01 — Graphs</button>
-      <button class="nav-btn" onclick="showSection('analytics',this)">02 — Analytics</button>
-      <button class="nav-btn" onclick="showSection('server',this)">03 — Hives</button>
-    </div>
-    <div class="topbar-right">
-      <div class="live-dot">LIVE</div>
-      <span id="topbar-user" style="font-size:11px;color:var(--text-muted)"></span>
-      <button class="btn-logout" onclick="doLogout()">Sign out</button>
+    <div class="topbar-inner">
+      <div class="topbar-logo"><div class="hex-sm"></div>BEElive</div>
+      <div class="topbar-nav">
+        <button class="nav-btn active" onclick="showSection('graphs',this)">Graphs</button>
+        <button class="nav-btn" onclick="showSection('analytics',this)">Assistant</button>
+        <button class="nav-btn" onclick="showSection('server',this)">Hives</button>
+      </div>
+      <div class="topbar-right">
+        <div class="live-dot" id="live-dot">···</div>
+        <span id="topbar-user" style="font-size:11px;color:var(--text-muted)"></span>
+        <button class="btn-logout" onclick="doLogout()">Sign out</button>
+      </div>
     </div>
   </div>
 
@@ -206,15 +207,11 @@ body::before { content:''; position:fixed; inset:0;
   <div class="section active" id="sec-graphs">
     <div class="section-header">
       <h2>Sensor Graphs</h2>
-      <p>Live data from InfluxDB — select node and time range</p>
+      <p>Readings from your hives — pick a node and time range</p>
     </div>
     <div style="display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap">
       <select class="node-select" id="node-select" onchange="loadGraphs()" style="margin-bottom:0">
-        <option value="lid">Lid node</option>
-        <option value="f1">Face 1</option>
-        <option value="f2">Face 2</option>
-        <option value="f3">Face 3</option>
-        <option value="f4">Face 4</option>
+        <option value="lid">Loading nodes…</option>
       </select>
       <select class="node-select" id="hours-select" onchange="loadGraphs()" style="margin-bottom:0">
         <option value="24">Last 24 hours</option>
@@ -224,7 +221,7 @@ body::before { content:''; position:fixed; inset:0;
       <button class="btn-sm" onclick="loadGraphs()">↻ Refresh</button>
     </div>
     <div class="day-status-bar" id="day-status-bar">
-      <div class="status-badge badge-good" id="status-badge">LIVE</div>
+      <div class="status-badge badge-off" id="status-badge">···</div>
       <div class="status-text" id="status-text">Loading sensor data...</div>
     </div>
     <div class="stats-row" id="stats-row">
@@ -243,14 +240,14 @@ body::before { content:''; position:fixed; inset:0;
   <!-- SECTION 2: ANALYTICS -->
   <div class="section" id="sec-analytics">
     <div class="section-header">
-      <h2>AI Analytics</h2>
-      <p>GPT-4o powered by your real sensor data — API key stays on the server</p>
+      <h2>Hive Assistant</h2>
+      <p>Ask anything about your hive — answers use the latest sensor readings</p>
     </div>
     <div class="analytics-layout">
       <div class="ai-chat-card">
         <div class="ai-chat-header">
-          <div class="ai-icon">🤖</div>
-          <div><h3>BEElive Intelligence</h3><p>GPT-4o-mini · Real sensor context · Secure</p></div>
+          <div class="ai-icon"><div class="hex-sm" style="width:16px;height:16px"></div></div>
+          <div><h3>BEElive Assistant</h3><p>Grounded in your live sensor data</p></div>
         </div>
         <div class="ai-messages" id="ai-messages">
           <div class="msg msg-ai">
@@ -267,11 +264,11 @@ body::before { content:''; position:fixed; inset:0;
         <div class="insight-card">
           <h4>Quick questions</h4>
           <div class="quick-btns">
-            <button class="quick-btn" onclick="quickAsk('Is my hive healthy based on current sensor readings?')">🍯 Is my hive healthy?</button>
-            <button class="quick-btn" onclick="quickAsk('Explain what the current alcohol ppm reading means for my bees')">🧪 Explain alcohol ppm</button>
-            <button class="quick-btn" onclick="quickAsk('Is the weight trend showing honey production or loss?')">⚖️ Weight trend</button>
-            <button class="quick-btn" onclick="quickAsk('Is the current noise level indicating swarming behavior?')">🔊 Swarming risk?</button>
-            <button class="quick-btn" onclick="quickAsk('What actions should I take as a beekeeper this week?')">📋 What to do this week</button>
+            <button class="quick-btn" onclick="quickAsk('Is my hive healthy based on current sensor readings?')">Is my hive healthy?</button>
+            <button class="quick-btn" onclick="quickAsk('Explain what the current alcohol ppm reading means for my bees')">Explain alcohol ppm</button>
+            <button class="quick-btn" onclick="quickAsk('Is the weight trend showing honey production or loss?')">Weight trend — honey or loss?</button>
+            <button class="quick-btn" onclick="quickAsk('Is the current noise level indicating swarming behavior?')">Swarming risk?</button>
+            <button class="quick-btn" onclick="quickAsk('What actions should I take as a beekeeper this week?')">What to do this week</button>
           </div>
         </div>
         <div class="insight-card">
@@ -293,11 +290,10 @@ body::before { content:''; position:fixed; inset:0;
     </div>
     <div class="hives-grid" id="hives-grid"></div>
     <div class="insight-card">
-      <h4>Connection info</h4>
-      <div class="insight-row"><span>Backend API</span><span id="api-url-display" style="color:var(--green)">localhost:8000</span></div>
-      <div class="insight-row"><span>MQTT broker</span><span>localhost:1883 → hive/#</span></div>
-      <div class="insight-row"><span>InfluxDB</span><span style="color:var(--green)">beelive / beehive</span></div>
-      <div class="insight-row"><span>GSM</span><span style="color:var(--honey)">4G — Active</span></div>
+      <h4>Connection</h4>
+      <div class="insight-row"><span>Backend API</span><span id="api-url-display">—</span></div>
+      <div class="insight-row"><span>API status</span><span id="api-status">checking…</span></div>
+      <div class="insight-row"><span>Data path</span><span>sensors → nRF24 → gateway → cloud</span></div>
     </div>
   </div>
 </div>
@@ -308,8 +304,9 @@ body::before { content:''; position:fixed; inset:0;
     <h3>Add new hive</h3>
     <div class="field"><label>Hive name</label><input type="text" id="m-name" placeholder="Hive Alpha"></div>
     <div class="field"><label>Location</label><input type="text" id="m-loc" placeholder="North field, row 2"></div>
-    <div class="field"><label>MQTT topic</label><input type="text" id="m-topic" placeholder="hive/alpha"></div>
-    <div class="field"><label>Node ID</label><input type="text" id="m-node" placeholder="node-05"></div>
+    <div class="field"><label>Channel</label><input type="text" id="m-topic" placeholder="hive-alpha"></div>
+    <div class="field"><label>Node ID</label><input type="text" id="m-node" placeholder="esp32-1"></div>
+    <div class="login-err" id="modal-err"></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Cancel</button>
       <button class="btn-save" onclick="addHive()">Add hive →</button>
@@ -324,9 +321,9 @@ const isLocal =
   window.location.hostname === 'localhost' ||
   window.location.hostname === '127.0.0.1';
 
-const API = isLocal
-  ? 'http://localhost:8000'
-  : 'https://beelive.onrender.com'; // ← update when deployed
+// Override for testing: localStorage.setItem('hiveos_api', 'https://...')
+const API = localStorage.getItem('hiveos_api') ||
+  (isLocal ? 'http://localhost:8000' : 'https://beelive.onrender.com');
 
 let token = localStorage.getItem('hiveos_token') || null;
 let latestSnapshot = {};
@@ -344,16 +341,22 @@ function escapeHtml(value) {
 
 // ─── API HELPER ──────────────────────────────────────────────────────────────
 async function api(path, options = {}) {
-  const res = await fetch(API + path, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: 'Bearer ' + token } : {}),
-      ...(options.headers || {})
-    }
-  });
+  let res;
+  try {
+    res = await fetch(API + path, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: 'Bearer ' + token } : {}),
+        ...(options.headers || {})
+      }
+    });
+  } catch {
+    if (options.throwOnNetwork) throw new Error('network');
+    return null;
+  }
   if (res.status === 401) { doLogout(); return null; }
-  return res.json();
+  try { return await res.json(); } catch { return null; }
 }
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
@@ -370,6 +373,7 @@ async function doLogin() {
   try {
     const data = await api('/api/login', {
       method: 'POST',
+      throwOnNetwork: true,
       body: JSON.stringify({ username: u, password: p })
     });
     if (data?.token) {
@@ -418,11 +422,40 @@ function showSection(id, btn) {
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 function initDashboard() {
-  document.getElementById('api-url-display').textContent = API;
-  loadGraphs();
+  document.getElementById('api-url-display').textContent = API.replace(/^https?:\/\//, '');
+  checkHealth();
+  renderHives().then(loadGraphs);
   loadSnapshot();
-  renderHives();
-  setInterval(loadSnapshot, 60000); // refresh snapshot every minute
+  setInterval(() => { loadSnapshot(); checkHealth(); }, 60000); // refresh every minute
+}
+
+async function checkHealth() {
+  const el = document.getElementById('api-status');
+  const dot = document.getElementById('live-dot');
+  let ok = false;
+  try {
+    const res = await fetch(API + '/api/health');
+    ok = res.ok;
+    el.textContent = ok ? 'online' : 'error ' + res.status;
+  } catch {
+    el.textContent = 'unreachable';
+  }
+  el.style.color = ok ? 'var(--green)' : 'var(--red)';
+  dot.textContent = ok ? 'LIVE' : 'OFFLINE';
+  dot.classList.toggle('on', ok);
+}
+
+// Fill the node selector from real registered devices instead of hardcoded ids
+function populateNodes(hives) {
+  const sel = document.getElementById('node-select');
+  const current = sel.value;
+  const nodes = [...new Set((hives || []).map(h => h.node).filter(Boolean))];
+  if (!nodes.length) {
+    sel.innerHTML = '<option value="lid">No nodes yet</option>';
+    return;
+  }
+  sel.innerHTML = nodes.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+  if (nodes.includes(current)) sel.value = current;
 }
 
 // ─── GRAPHS ───────────────────────────────────────────────────────────────────
@@ -430,16 +463,26 @@ async function loadGraphs() {
   const node  = document.getElementById('node-select').value;
   const hours = document.getElementById('hours-select').value;
 
-  document.getElementById('status-text').innerHTML = 'Loading data from InfluxDB...';
+  document.getElementById('status-text').innerHTML = 'Loading sensor data...';
 
-  const result = await api(`/api/data?node=${node}&hours=${hours}`);
+  const result = await api(`/api/data?node=${encodeURIComponent(node)}&hours=${encodeURIComponent(hours)}`);
 
-  if (!result) return;
+  if (!result) {
+    const badge = document.getElementById('status-badge');
+    badge.className = 'status-badge badge-off';
+    badge.textContent = 'OFFLINE';
+    document.getElementById('status-text').textContent = 'Cannot reach the backend — check your connection and refresh.';
+    document.getElementById('stats-row').innerHTML =
+      '<div class="stat-card"><div class="stat-label">No connection</div><div class="stat-value">—</div></div>';
+    return;
+  }
 
-  const d = result.data;
+  const d = result.data || {};
+  const totalReadings = Object.values(d).reduce((n, arr) => n + (arr?.length || 0), 0);
 
   // Stats row — last value of each field
-  const last = arr => arr.length ? arr[arr.length-1].value : '—';
+  const fmt = v => typeof v === 'number' ? (Math.abs(v) >= 100 ? Math.round(v) : Math.round(v * 10) / 10) : v;
+  const last = arr => arr.length ? fmt(arr[arr.length-1].value) : '—';
   document.getElementById('stats-row').innerHTML = [
     { label:'Temperature', field:'temp_c',      unit:'°C'  },
     { label:'Humidity',    field:'humidity',     unit:'%'   },
@@ -456,13 +499,27 @@ async function loadGraphs() {
     </div>`;
   }).join('');
 
-  document.getElementById('status-text').innerHTML =
-    `<span>Node: ${node}</span> — ${result.data.temp_c?.length || 0} readings over last ${hours}h`;
-  document.getElementById('status-badge').className = 'status-badge badge-good';
-  document.getElementById('status-badge').textContent = 'LIVE';
+  const badge = document.getElementById('status-badge');
+  if (totalReadings > 0) {
+    document.getElementById('status-text').innerHTML =
+      `<span>Node: ${escapeHtml(node)}</span> — ${totalReadings} readings over last ${escapeHtml(hours)}h`;
+    badge.className = 'status-badge badge-good';
+    badge.textContent = 'LIVE';
+  } else {
+    document.getElementById('status-text').innerHTML =
+      `<span>Node: ${escapeHtml(node)}</span> — no data in the last ${escapeHtml(hours)}h${result.warning ? ' · ' + escapeHtml(result.warning) : ''}`;
+    badge.className = 'status-badge badge-off';
+    badge.textContent = 'NO DATA';
+  }
 
-  // Charts
-  const mkLabels = arr => arr.map(p => new Date(p.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
+  // Charts — include the date on multi-day ranges
+  const withDate = Number(hours) > 48;
+  const mkLabels = arr => arr.map(p => {
+    const t = new Date(p.time);
+    return withDate
+      ? t.toLocaleDateString([], {day:'2-digit',month:'short'}) + ' ' + t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})
+      : t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  });
   const mkVals   = arr => arr.map(p => p.value);
 
   const chartDefs = [
@@ -508,9 +565,10 @@ async function loadSnapshot() {
     ['Alcohol',     data.alcohol_ppm,  'ppm'],
     ['Methane',     data.methane_ppm,  'ppm'],
     ['Noise',       data.noise_db,     'dB' ],
-  ].map(([k,v,u]) =>
-    `<div class="insight-row"><span>${escapeHtml(k)}</span><span>${escapeHtml(v ?? '—')} ${v != null ? escapeHtml(u) : ''}</span></div>`
-  ).join('');
+  ].map(([k,v,u]) => {
+    const shown = typeof v === 'number' ? Math.round(v * 10) / 10 : (v ?? '—');
+    return `<div class="insight-row"><span>${escapeHtml(k)}</span><span>${escapeHtml(shown)} ${v != null ? escapeHtml(u) : ''}</span></div>`;
+  }).join('');
 }
 
 // ─── GPT ──────────────────────────────────────────────────────────────────────
@@ -585,22 +643,46 @@ document.getElementById('ai-input').addEventListener('keydown', e => {
 });
 
 // ─── HIVES ────────────────────────────────────────────────────────────────────
+function hiveBadge(h) {
+  if (h.status === 'online') return '<div class="status-badge badge-good">ONLINE</div>';
+  return '<div class="status-badge badge-off">NO DATA</div>';
+}
+
+function lastSeenText(h) {
+  if (!h.last_seen) return 'no readings yet';
+  const t = new Date(h.last_seen);
+  return isNaN(t) ? 'no readings yet'
+    : 'last seen ' + t.toLocaleString([], {day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
 async function renderHives() {
   const hives = await api('/api/hives');
-  if (!hives) return;
+  if (!hives || !Array.isArray(hives)) return;
+  populateNodes(hives);
   document.getElementById('hive-count').textContent = `${hives.length} hive${hives.length !== 1 ? 's':''} registered`;
+
+  if (!hives.length) {
+    document.getElementById('hives-grid').innerHTML = `
+      <div class="empty-state">
+        <strong>No hives yet.</strong><br>
+        A hive appears here automatically when your gateway sends its first reading,<br>
+        or add one manually with the button above.
+      </div>`;
+    return;
+  }
+
   document.getElementById('hives-grid').innerHTML = hives.map(h => `
     <div class="hive-card">
       <div class="hive-card-top">
-        <div><div class="hive-name">${escapeHtml(h.name)}</div><div class="hive-loc">📍 ${escapeHtml(h.loc)}</div></div>
-        <div class="status-badge badge-good">ONLINE</div>
+        <div><div class="hive-name">${escapeHtml(h.name)}</div><div class="hive-loc">${escapeHtml(h.loc || '—')}</div></div>
+        ${hiveBadge(h)}
       </div>
       <div class="hive-metrics">
-        <div class="hive-metric"><div class="hive-metric-label">Topic</div><div class="hive-metric-val" style="font-size:14px">${escapeHtml(h.topic)}</div></div>
+        <div class="hive-metric"><div class="hive-metric-label">Channel</div><div class="hive-metric-val" style="font-size:14px">${escapeHtml(h.topic)}</div></div>
         <div class="hive-metric"><div class="hive-metric-label">Node ID</div><div class="hive-metric-val" style="font-size:14px">${escapeHtml(h.node)}</div></div>
       </div>
       <div class="hive-footer">
-        <span>id: ${escapeHtml(h.id)}</span>
+        <span>${escapeHtml(lastSeenText(h))}</span>
         <div class="hive-actions">
           <button class="btn-sm danger" data-hive-id="${escapeHtml(h.id)}" data-hive-name="${escapeHtml(h.name)}">Remove</button>
         </div>
@@ -616,6 +698,12 @@ function openModal()  { document.getElementById('modal').classList.add('open'); 
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 document.getElementById('modal').addEventListener('click', e => { if(e.target.id==='modal') closeModal(); });
 
+function showModalErr(msg) {
+  const err = document.getElementById('modal-err');
+  err.textContent = msg; err.style.display = 'block';
+  setTimeout(() => err.style.display = 'none', 4000);
+}
+
 async function addHive() {
   const body = {
     name:  document.getElementById('m-name').value.trim(),
@@ -623,8 +711,15 @@ async function addHive() {
     topic: document.getElementById('m-topic').value.trim(),
     node:  document.getElementById('m-node').value.trim(),
   };
-  if (!body.name) return;
-  await api('/api/hives', { method:'POST', body: JSON.stringify(body) });
+  if (!body.name || !body.loc || !body.topic || !body.node) {
+    showModalErr('All fields are required.');
+    return;
+  }
+  const res = await api('/api/hives', { method:'POST', body: JSON.stringify(body) });
+  if (!res || res.detail) {
+    showModalErr(typeof res?.detail === 'string' ? res.detail : 'Could not add hive — check the fields.');
+    return;
+  }
   renderHives();
   closeModal();
   ['m-name','m-loc','m-topic','m-node'].forEach(id => document.getElementById(id).value='');

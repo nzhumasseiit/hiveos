@@ -49,7 +49,11 @@ class Settings:
         raw = self.cors_origins.strip()
         if not raw:
             return ["*"]
-        return [origin.strip() for origin in raw.split(",") if origin.strip()]
+        # Normalize: browsers send Origin without a trailing slash and lowercased,
+        # so "https://Site.com/" in the env var would otherwise never match.
+        origins = [origin.strip().rstrip("/").lower() for origin in raw.split(",")]
+        origins = [o for o in origins if o]
+        return origins or ["*"]
 
     def validate_runtime(self) -> None:
         if self.is_production:
