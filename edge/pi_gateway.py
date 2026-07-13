@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
-"""HiveOS Pi gateway: receive HivePacket v1 over nRF24, POST to /api/readings.
+"""HiveOS Pi gateway: receive HivePacket v1, POST to /api/readings.
+
+Two transports, picked with HIVEOS_TRANSPORT:
+  uart  (default) — a receiver ESP32 owns the nRF24 radio and forwards each
+                    packet to the Pi over serial, one line per packet: either
+                    hex-encoded raw HivePacket ("01A2...") or a JSON object
+                    ({"seq": 7, "temp_c": 34.2, ...}).
+  nrf24           — the nRF24 radio is wired to the Pi's SPI directly.
 
 Buffers to disk when the network is down, flushes when it comes back —
 readings are never lost. See SPEC.md for the packet format.
 
 Usage:
-    HIVEOS_URL=https://your-app.onrender.com \
+    HIVEOS_URL=https://beelive.onrender.com \
     HIVEOS_API_KEY=your-ingest-key \
     python3 pi_gateway.py
 """
@@ -18,13 +25,17 @@ import time
 from datetime import datetime, timezone
 
 import requests
-from pyrf24 import RF24, RF24_250KBPS, RF24_PA_MAX
 
 # --- config (env vars) -------------------------------------------------------
 URL        = os.environ.get("HIVEOS_URL", "").rstrip("/")
 API_KEY    = os.environ.get("HIVEOS_API_KEY", "")
 HIVE_ID    = os.environ.get("HIVEOS_HIVE_ID", "hive-1")
 DEVICE_ID  = os.environ.get("HIVEOS_DEVICE_ID", "esp32-1")
+TRANSPORT  = os.environ.get("HIVEOS_TRANSPORT", "uart")   # uart | nrf24
+# uart transport
+SERIAL_PORT = os.environ.get("HIVEOS_SERIAL_PORT", "/dev/serial0")
+BAUD        = int(os.environ.get("HIVEOS_BAUD", "115200"))
+# nrf24 transport
 CE_PIN     = int(os.environ.get("HIVEOS_CE_PIN", "22"))   # GPIO22
 CSN_PIN    = int(os.environ.get("HIVEOS_CSN_PIN", "0"))   # SPI CE0
 CHANNEL    = int(os.environ.get("HIVEOS_CHANNEL", "76"))
@@ -57,6 +68,38 @@ def decode(payload: bytes):
                 for i, (bit, name, fn) in enumerate(FIELDS)
                 if valid & (1 << bit)}
     return seq, readings
+
+
+# Every field the API accepts; JSON lines may carry any of these directly.
+API_FIELDS = {name for _, name, _ in FIELDS} | {"vibration"}
+
+
+def parse_line(line: str):
+    """One UART line -> (seq, readings dict) or (None, None) if invalid.
+
+    seq is None (with valid readings) when the line is JSON without a "seq"
+    key — loss tracking is skipped for those.
+    """
+    line = line.strip()
+    if not line:
+        return None, None
+    if line.startswith("{"):
+        try:
+            data = json.loads(line)
+        except ValueError:
+            return None, None
+        if not isinstance(data, dict):
+            return None, None
+        seq = data.get("seq")
+        readings = {k: float(v) for k, v in data.items()
+                    if k in API_FIELDS and isinstance(v, (int, float))}
+        if not readings:
+            return None, None
+        return (int(seq) % 256 if isinstance(seq, (int, float)) else None), readings
+    try:
+        return decode(bytes.fromhex(line))
+    except ValueError:
+        return None, None
 
 
 # --- disk buffer: survive network dropouts -----------------------------------
@@ -116,17 +159,46 @@ def make_body(readings: dict) -> dict:
         "hive_id": HIVE_ID,
         "device_id": DEVICE_ID,
         "sensor_type": "environment",
-        "protocol": "nrf24",
+        "protocol": "uart" if TRANSPORT == "uart" else "nrf24",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "readings": readings,
     }
 
 
-# --- main loop ----------------------------------------------------------------
-def main():
-    if not URL or not API_KEY:
-        sys.exit("Set HIVEOS_URL and HIVEOS_API_KEY environment variables")
+# --- transports ----------------------------------------------------------------
+def open_uart():
+    """Returns a poll() -> (seq, readings) | None closure reading serial lines."""
+    try:
+        import serial
+    except ImportError:
+        sys.exit("pyserial is not installed — run: pip install pyserial")
+    try:
+        ser = serial.Serial(SERIAL_PORT, BAUD, timeout=0.2)
+    except serial.SerialException as exc:
+        sys.exit(f"Cannot open {SERIAL_PORT}: {exc}\n"
+                 "On GPIO pins: enable the serial port via raspi-config "
+                 "(login shell: No, serial hardware: Yes). Over USB: try /dev/ttyUSB0.")
+    print(f"reading {SERIAL_PORT} @ {BAUD} baud")
 
+    def poll():
+        line = ser.readline()  # returns b"" after the 0.2s timeout
+        if not line.strip():
+            return None
+        seq, readings = parse_line(line.decode("ascii", errors="replace"))
+        if not readings:  # invalid packet, or one with an empty field mask
+            print(f"[skip] bad line: {line[:60]!r}")
+            return None
+        return seq, readings
+
+    return poll
+
+
+def open_nrf24():
+    """Returns a poll() -> (seq, readings) | None closure reading the radio."""
+    try:
+        from pyrf24 import RF24, RF24_250KBPS, RF24_PA_MAX
+    except ImportError:
+        sys.exit("pyrf24 is not installed — run: pip install pyrf24")
     radio = RF24(CE_PIN, CSN_PIN)
     if not radio.begin():
         sys.exit("nRF24 not responding — check wiring and SPI")
@@ -136,33 +208,52 @@ def main():
     radio.open_rx_pipe(1, PIPE_ADDR)
     radio.payload_size = 18
     radio.listen = True
+    print(f"listening on channel {CHANNEL}, pipe {PIPE_ADDR!r}")
+
+    def poll():
+        if not radio.available():
+            time.sleep(0.05)
+            return None
+        seq, readings = decode(bytes(radio.read(radio.payload_size)))
+        if not readings:  # invalid packet, or one with an empty field mask
+            print("[skip] bad packet")
+            return None
+        return seq, readings
+
+    return poll
+
+
+# --- main loop ----------------------------------------------------------------
+def main():
+    if not URL or not API_KEY:
+        sys.exit("Set HIVEOS_URL and HIVEOS_API_KEY environment variables")
+    if TRANSPORT not in ("uart", "nrf24"):
+        sys.exit(f"Unknown HIVEOS_TRANSPORT: {TRANSPORT!r} (use uart or nrf24)")
+
+    poll = open_uart() if TRANSPORT == "uart" else open_nrf24()
 
     buf = buffer_init()
     last_seq = None
     lost = received = 0
     last_flush = 0.0
-    print(f"listening on channel {CHANNEL}, pipe {PIPE_ADDR!r} -> {URL}/api/readings")
+    print(f"forwarding to {URL}/api/readings as {HIVE_ID}/{DEVICE_ID}")
 
     while True:
-        if radio.available():
-            payload = radio.read(radio.payload_size)
-            seq, readings = decode(bytes(payload))
-            if seq is None:
-                print("[skip] bad packet")
-                continue
-
+        packet = poll()
+        if packet is not None:
+            seq, readings = packet
             received += 1
-            if last_seq is not None:
-                gap = (seq - last_seq - 1) % 256
-                if gap:
-                    lost += gap
-            last_seq = seq
+            if seq is not None:
+                if last_seq is not None:
+                    gap = (seq - last_seq - 1) % 256
+                    if gap:
+                        lost += gap
+                last_seq = seq
 
             print(f"seq={seq} loss={lost}/{lost + received} {readings}")
-            if readings:
-                body = make_body(readings)
-                if not post_reading(body):
-                    buffer_put(buf, body)
+            body = make_body(readings)
+            if not post_reading(body):
+                buffer_put(buf, body)
 
         now = time.monotonic()
         if now - last_flush > FLUSH_EVERY:
@@ -170,8 +261,6 @@ def main():
             n = buffer_flush(buf)
             if n:
                 print(f"[flush] sent {n} buffered readings")
-
-        time.sleep(0.05)
 
 
 if __name__ == "__main__":
